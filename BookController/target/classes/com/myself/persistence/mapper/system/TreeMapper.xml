@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.myself.persistence.mapper.system.TreeMapper">
+	
+	<select id="queries" resultType="com.myself.persistence.entity.system.TreeEntity" parameterType="com.myself.persistence.entity.system.TreeEntity">
+		SELECT ID "id", P_ID "pId", TYPE "type", NAME "name", VALUE "value", USE_TYPE "useType", LEVEL "level",
+				CREATE_TIME "createTime", UPDATE_TIME "updateTime", SEQ "seq", DESCRIPTION "description"
+    		FROM T_TREE
+	</select> 
+	
+	<!-- 批量插入 -->
+	<insert id="creates" parameterType="java.util.List">
+		INSERT INTO T_TREE(ID, P_ID, TYPE, NAME, VALUE, USE_TYPE, LEVEL, CREATE_TIME, UPDATE_TIME, SEQ, DESCRIPTION) VALUES
+			<foreach collection="list" item="tree" index="index" separator=",">
+				(#{tree.id,jdbcType=VARCHAR},
+				 #{tree.pId,jdbcType=VARCHAR},
+				 #{tree.type,jdbcType=INTEGER},
+				 #{tree.name,jdbcType=VARCHAR},
+				 #{tree.value,jdbcType=VARCHAR},
+				 #{tree.useType,jdbcType=INTEGER},
+				 #{tree.level,jdbcType=INTEGER},
+				 #{tree.createTime,jdbcType=DATE},
+				 #{tree.updateTime,jdbcType=DATE},
+				 #{tree.seq,jdbcType=INTEGER},
+				 #{tree.description,jdbcType=VARCHAR})
+			</foreach>
+	</insert>
+	
+		<!-- 批量更新 -->
+	<update id="modifies" parameterType="java.util.List">
+	   UPDATE T_TREE
+	   <trim prefix="SET" suffixOverrides=",">
+	   		<trim prefix="MENU_NAME=CASE" suffix="end,">
+	   			 <foreach collection="list" item="tree" index="index">
+	   			 	<if test="@com.myself.common.utils.StringUtils@isNotBlank(tree.name)">
+	   			 		WHEN MENU_ID=#{tree.id} then #{tree.name,jdbcType=VARCHAR}
+	   			 	</if>
+	   			 </foreach>
+	   		</trim>
+		    <trim prefix="MENU_URL=CASE" suffix="end,">
+			    <foreach collection="list" item="tree" index="index">
+				    <if test="@com.myself.common.utils.StringUtils@isNotBlank(tree.value)">
+					   WHEN MENU_ID=#{tree.id} then #{tree.value,jdbcType=VARCHAR}
+				    </if>
+			    </foreach>
+		    </trim>
+	   		<trim prefix="MENU_SEQ=CASE" suffix="end,">
+	   			 <foreach collection="list" item="tree" index="index">
+	   			 	<if test="@com.myself.common.utils.StringUtils@isNotBlank(tree.seq)">
+	   			 		WHEN MENU_ID=#{tree.id} then #{tree.seq,jdbcType=VARCHAR}
+	   			 	</if>
+	   			 </foreach>
+	   		</trim>
+	   		<trim prefix="MENU_LEVEL=CASE" suffix="end,">
+	   			 <foreach collection="list" item="tree" index="index">
+	   			 	<if test="@com.myself.common.utils.StringUtils@isNotBlank(tree.level)">
+	   			 		WHEN MENU_ID=#{tree.id} then #{tree.level,jdbcType=VARCHAR}
+	   			 	</if>
+	   			 </foreach>
+	   		</trim>
+	   		<trim prefix="MENU_TYPE=CASE" suffix="end,">
+	   			 <foreach collection="list" item="tree" index="index">
+	   			 	<if test="@com.myself.common.utils.StringUtils@isNotBlank(tree.type)">
+	   			 		WHEN MENU_ID=#{tree.id} then #{tree.type,jdbcType=VARCHAR}
+	   			 	</if>
+	   			 </foreach>
+	   		</trim>
+	   		<trim prefix="MENU_VALID=CASE" suffix="end,">
+	   			 <foreach collection="list" item="tree" index="index">
+	   			 	<if test="@com.myself.common.utils.StringUtils@isNotBlank(tree.valid)">
+	   			 		WHEN MENU_ID=#{tree.id} then #{tree.valid,jdbcType=VARCHAR}
+	   			 	</if>
+	   			 </foreach>
+	   		</trim>
+	   		<trim prefix="MENU_VISIBLE=CASE" suffix="end,">
+	   			 <foreach collection="list" item="tree" index="index">
+	   			 	<if test="@com.myself.common.utils.StringUtils@isNotBlank(tree.visible)">
+	   			 		WHEN MENU_ID=#{tree.id} then #{tree.visible,jdbcType=VARCHAR}
+	   			 	</if>
+	   			 </foreach>
+	   		</trim>
+	   		<trim prefix="MENU_ACCOUNT=CASE" suffix="end,">
+	   			 <foreach collection="list" item="tree" index="index">
+	   			 	<if test="@com.myself.common.utils.StringUtils@isNotBlank(tree.account)">
+	   			 		WHEN MENU_ID=#{tree.id} then #{tree.account,jdbcType=VARCHAR}
+	   			 	</if>
+	   			 </foreach>
+	   		</trim>
+	   		<trim prefix="MENU_REMARK=CASE" suffix="end,">
+	   			 <foreach collection="list" item="tree" index="index">
+	   			 	<if test="@com.myself.common.utils.StringUtils@isNotBlank(tree.remark)">
+	   			 		WHEN MENU_ID=#{tree.id} then #{tree.remark,jdbcType=VARCHAR}
+	   			 	</if>
+	   			 </foreach>
+	   		</trim>
+	   		<trim prefix="MENU_MODIFY_TIME=CASE" suffix="end,">
+	   			 <foreach collection="list" item="tree" index="index">
+	   			 	<if test="@com.myself.common.utils.StringUtils@isNotBlank(tree.modifyTime)">
+	   			 		WHEN MENU_ID=#{tree.id} then #{tree.modifyTime,jdbcType=DATE}
+	   			 	</if>
+	   			 </foreach>
+	   		</trim>
+		    <trim prefix="MENU_OPCODE=CASE" suffix="end,">
+			    <foreach collection="list" item="tree" index="index">
+				   <if test="@com.myself.common.utils.StringUtils@isNotBlank(tree.opCode)">
+					   WHEN MENU_ID=#{tree.id} then #{tree.opCode,jdbcType=VARCHAR}
+				   </if>
+			    </foreach>
+		    </trim>
+	   </trim>
+	   WHERE MENU_ID IN
+	   <foreach collection="list" item="tree" index="index" open="(" close=")" separator=",">
+           #{tree.id}
+       </foreach>
+	</update>
+	
+	<delete id="deletes" parameterType="java.util.List">
+		DELETE FROM T_TREE WHERE MENU_ID IN
+		<foreach collection="list" index="index" item="tree" open="(" close=")" separator=",">
+			#{tree.id}
+		</foreach>
+	</delete>
+	
+</mapper>
