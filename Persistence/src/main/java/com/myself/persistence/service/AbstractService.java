@@ -12,7 +12,7 @@ public interface AbstractService<E, K> {
 
 	public String updates(List<E> list);
 
-	public String deletes(List<K> list);
+	public String deletes(List<E> list);
 
 	public E query(E entity);
 

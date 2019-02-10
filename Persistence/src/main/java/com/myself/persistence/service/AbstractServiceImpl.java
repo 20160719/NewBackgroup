@@ -30,8 +30,9 @@ public abstract class AbstractServiceImpl<E, K> implements AbstractService<E, K>
 	}
 
 	@Override
-	public String deletes(List<K> list) {
-		return deletes(list, (l) -> getMapper().deletes(l), CommonConstant.OP_DELETES);
+	public String deletes(List<E> list) {
+		List<K> keys = getEntityIds(list);
+		return deletes(keys, (l) -> getMapper().deletes(l), CommonConstant.OP_DELETES);
 	}
 
 	@Override
@@ -58,27 +59,55 @@ public abstract class AbstractServiceImpl<E, K> implements AbstractService<E, K>
 		String result = CommonResult.OPERATE_FALID.toString();
 		try {
 			if (opType.equals(CommonConstant.OP_INSERTS)) {
-				verify(list);
+				verify(list, 1);
 			} else if (opType.equals(CommonConstant.OP_UPDATES)) {
-				isChanged(list);
-				verify(list);
+//				removeSameEntity(list);
+				List<E> oldList = null;
+				int size = list.size();
+				try {
+					oldList = queryByEntityIds(list);
+					for (int i = 0; i < size; i++) {
+						E entity = list.get(i);
+						E oldEntity = oldList.get(i);
+						if (isEqual(entity, oldEntity)) {
+							// 有相同数据时删除list的该数据，不更新该数据
+							list.remove(i);
+							oldList.remove(i);
+						} 
+					}
+				} catch (Exception e) {
+					getLogger().error("[queryByEntityIds error] {}", e);
+				}
+				if(list.isEmpty()) {
+					return CommonResult.OPERATE_NO.toString();
+				}
+				verify(list, 2);
+				for(int i = 0; i < size; i++) {
+					E entity = list.get(i);
+					E oldEntity = oldList.get(i);
+					if(null != entity && null != oldEntity) {
+						setFieldNull(entity, oldEntity);
+					}
+				}
 			}
 			if (cmd.operate(list).intValue() > 0) {
 				return CommonResult.OPERATE_SUCCESS.toString();
 			}
 		} catch (VerifyException e) {
-			// TODO
 			result = e.toString();
 		} catch (ChangeException e) {
-			// TODO
 			result = e.toString();
 		} catch (Exception e) {
-			getLogger().error("[operate error] {}", e);
+			getLogger().error("[modifies error] {}", e);
 		}
 		return result;
 	}
 	
-	protected String deletes(List<K> list, DeleteOperate<K, Integer> cmd, String opType) {
+	protected void setFieldNull(E entity, E oldEntity) {
+		//TODO
+	}
+	
+	protected String deletes(List<K> list, ModifyOperate<K, Integer> cmd, String opType) {
 		String result = CommonResult.OPERATE_FALID.toString();
 		try {
 			if (cmd.operate(list).intValue() > 0) {
@@ -90,14 +119,13 @@ public abstract class AbstractServiceImpl<E, K> implements AbstractService<E, K>
 		return result;
 	}
 
-	private void verify(List<E> list) throws VerifyException {
+	private void verify(List<E> list, int num) throws VerifyException {
 		for (E entity : list) {
-			verifyEntity(entity);
+			verifyEntity(entity, num);
 		}
-
 	}
 
-	protected void verifyEntity(E entity) throws VerifyException {
+	protected void verifyEntity(E entity, int num) throws VerifyException {
 		int sum = 0;
 		String msg = null;
 		try {
@@ -105,10 +133,12 @@ public abstract class AbstractServiceImpl<E, K> implements AbstractService<E, K>
 			List<String> errorMsg = null;
 			for (int i = 0, size = list.size(); i < size; i++) {
 				int r = list.get(i).intValue();
-				if (1 <= r) {
-					if (null == errorMsg)
+				if (num <= r) {
+					if (null == errorMsg) {
 						errorMsg = new ArrayList<String>(size);
-					errorMsg.add(getVerifyMap().get(String.valueOf(r)));
+					}
+					errorMsg.add(getVerifyMap().get(String.valueOf(i)));
+					sum++;
 				}
 			}
 			if (null != errorMsg)
@@ -119,32 +149,33 @@ public abstract class AbstractServiceImpl<E, K> implements AbstractService<E, K>
 		if (sum > 0) {
 			throw new VerifyException(10, msg);
 		}
-
 	}
 
-	protected void isChanged(List<E> list) throws ChangeException {
-		List<E> oldList = null;
+	protected void removeSameEntity(List<E> list) throws ChangeException {
 		try {
-			oldList = queryByEntityIds(list);
+			List<E> oldList = queryByEntityIds(list);
+			for (int m = 0, size = list.size(); m < size; m++) {
+				E entity = list.get(m);
+				E oldEntity = oldList.get(m);
+				if (isEqual(entity, oldEntity)) {
+					// 有相同数据时删除list的该数据，不更新该数据
+					list.remove(entity);
+				} 
+			}
 		} catch (Exception e) {
 			getLogger().error("[queryByEntityIds error] {}", e);
-			return;
-		}
-		for (int m = 0, size = list.size(); m < size; m++) {
-			E entity = list.get(m);
-			E oldEntity = oldList.get(m);
-			if (compare(entity, oldEntity)) {
-				// TODO
-			}
 		}
 	}
 
 	protected List<E> queryByEntityIds(List<E> list) throws Exception {
-		// TODO 自动生成的方法存根
+		return getMapper().queryByIds(getEntityIds(list));
+	}
+	
+	protected List<K> getEntityIds(List<E> list) {
 		return null;
 	}
 
-	protected boolean compare(E entity, E oldEntity) {
+	protected boolean isEqual(E entity, E oldEntity) {
 		return true;
 	}
 	

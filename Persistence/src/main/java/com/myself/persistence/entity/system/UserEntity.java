@@ -27,6 +27,12 @@ public class UserEntity extends AbstractEntity<Long> {
 
 	// 年龄
 	private int age;
+	
+	// 电话号码
+	private String phone;
+	
+	//邮箱
+	private String email;
 
 	// 地址
 	private String address;
@@ -76,6 +82,26 @@ public class UserEntity extends AbstractEntity<Long> {
 
 	public int getAge() {
 		return age;
+	}
+
+	public String getPhone() {
+		return phone;
+	}
+
+	public void setPhone(String phone) {
+		this.phone = phone;
+	}
+
+	public String getEmail() {
+		return email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
+	}
+
+	public void setAge(int age) {
+		this.age = age;
 	}
 
 	public String getAddress() {

@@ -32,16 +32,20 @@ public class UserServiceImpl extends AbstractServiceImpl<UserEntity, Long> imple
 	private UserMapper userMapper;
 
 	@Override
-	protected List<UserEntity> queryByEntityIds(List<UserEntity> list) throws Exception {
-		List<Long> ids = list.stream().map(u -> u.getId()).collect(Collectors.toList());
-		return getMapper().queryByIds(ids);
+	protected List<Long> getEntityIds(List<UserEntity> list) {
+		return list.stream().map(u -> u.getId()).collect(Collectors.toList());
 	}
 
 	@Override
-	protected boolean compare(UserEntity entity, UserEntity oldEntity) {
-		return entity.toString().equals(oldEntity.toString());
+	protected boolean isEqual(UserEntity entity, UserEntity oldEntity) {
+		return !entity.fieldsIsChanged(oldEntity, false);
 	}
 	
+	@Override
+	protected void setFieldNull(UserEntity entity, UserEntity oldEntity) {
+		entity.fieldsIsChanged(oldEntity, true);
+	}
+
 	@Override
 	protected Map<String, String> getVerifyMap() {
 		return verifyMap;

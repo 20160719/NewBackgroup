@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.myself.persistence.mapper.system.PrivilegeMapper">
+	
+	<sql id="role_menu_select_1">
+		ID "id", ROLE_ID "roleId", MENU_ID "menuId"
+	</sql>
+	
+	<sql id="query_where_1">
+		<trim prefix="WHERE" prefixOverrides="AND|OR">
+    		<if test="@com.myself.util.StringUtils@isNotBlank(entity.name)">
+		    	AND NAME = #{entity.name, jdbcType=VARCHAR}
+			</if>
+			<if test="@com.myself.util.StringUtils@isNotBlank(entity.type)">
+		    	AND TYPE = #{entity.type, jdbcType=VARCHAR}
+			</if>
+    	</trim>
+	</sql>
+	
+	<sql id="limit_1">
+		<if test="@com.myself.util.StringUtils@isNotNull(entity.startIndex) and @com.myself.util.StringUtils@isNotNull(entity.limit)">
+    		LIMIT #{entity.startIndex, jdbcType=INTEGER}, #{entity.limit, jdbcType=INTEGER}
+    	</if>
+	</sql>
+	
+	<select id="queries" resultType="com.myself.persistence.entity.system.PrivilegeEntity" parameterType="com.myself.persistence.entity.system.PrivilegeEntity">
+		SELECT 
+		<if test="@com.myself.util.StringUtils@isEqual(entity.dataReturnType, 0)">
+			<include refid="role_menu_select_1"/>
+		</if>
+		<if test="@com.myself.util.StringUtils@isEqual(entity.dataReturnType, 2)">
+			ID "id"
+		</if>
+    	FROM T_ROLE_MENU
+    	<include refid="query_where_1"/>
+    	<include refid="limit_1"/> 
+	</select> 
+	
+	<select id="queryForVerify" resultType="java.lang.Integer" parameterType="com.myself.persistence.entity.system.PrivilegeEntity">
+		SELECT COUNT(ID) FROM T_ROLE_MENU <include refid="query_where_1"/>
+	</select>
+	
+	<select id="queryByIds" resultType="com.myself.persistence.entity.system.PrivilegeEntity" parameterType="java.lang.Long">
+		SELECT 
+		<include refid="role_menu_select_1"></include>
+		FROM T_ROLE_MENU 
+		WHERE ID IN
+	   <foreach collection="list" item="id" index="index" open="(" close=")" separator=",">
+           #{id, jdbcType=BIGINT}
+       </foreach>
+	</select>
+	
+	<!-- 批量插入 -->
+	<insert id="inserts" parameterType="java.util.List">
+		INSERT INTO T_ROLE_MENU(ID, ROLE_ID, MENU_ID) VALUES
+			<foreach collection="list" item="item" index="index" separator=",">
+				(#{item.id, jdbcType=BIGINT},
+				 #{item.roleId, jdbcType=BIGINT},
+				 #{item.menuId, jdbcType=BIGINT},
+				)
+			</foreach>
+	</insert>
+	
+		<!-- 批量更新 -->
+	<update id="updates" parameterType="java.util.List">
+	   UPDATE T_ROLE_MENU
+	   <trim prefix="SET" suffixOverrides=",">
+	   		<trim prefix="NAME=CASE" suffix="end,">
+	   			 <foreach collection="list" item="tree" index="index">
+	   			 	<if test="@com.myself.util.StringUtils@isNotBlank(tree.name)">
+	   			 		WHEN ID=#{tree.id, jdbcType=BIGINT} then #{tree.name,jdbcType=VARCHAR}
+	   			 	</if>
+	   			 </foreach>
+	   		</trim>
+		    <trim prefix="VALUE=CASE" suffix="end,">
+			    <foreach collection="list" item="tree" index="index">
+				    <if test="@com.myself.util.StringUtils@isNotBlank(tree.value)">
+					   WHEN ID=#{tree.id, jdbcType=BIGINT} then #{tree.value,jdbcType=VARCHAR}
+				    </if>
+			    </foreach>
+		    </trim>
+	   		<trim prefix="SEQ=CASE" suffix="end,">
+	   			 <foreach collection="list" item="tree" index="index">
+	   			 	<if test="@com.myself.util.StringUtils@isNotBlank(tree.seq)">
+	   			 		WHEN ID=#{tree.id, jdbcType=BIGINT} then #{tree.seq,jdbcType=VARCHAR}
+	   			 	</if>
+	   			 </foreach>
+	   		</trim>
+	   		<trim prefix="LEVEL=CASE" suffix="end,">
+	   			 <foreach collection="list" item="tree" index="index">
+	   			 	<if test="@com.myself.util.StringUtils@isNotBlank(tree.level)">
+	   			 		WHEN ID=#{tree.id, jdbcType=BIGINT} then #{tree.level,jdbcType=VARCHAR}
+	   			 	</if>
+	   			 </foreach>
+	   		</trim>
+	   		<trim prefix="TYPE=CASE" suffix="end,">
+	   			 <foreach collection="list" item="tree" index="index">
+	   			 	<if test="@com.myself.util.StringUtils@isNotBlank(tree.type)">
+	   			 		WHEN ID=#{tree.id, jdbcType=BIGINT} then #{tree.type,jdbcType=VARCHAR}
+	   			 	</if>
+	   			 </foreach>
+	   		</trim>
+	   		<!-- <trim prefix="VALID=CASE" suffix="end,">
+	   			 <foreach collection="list" item="tree" index="index">
+	   			 	<if test="@com.myself.util.StringUtils@isNotBlank(tree.valid)">
+	   			 		WHEN ID=#{tree.id,  jdbcType=INTEGER} then #{tree.valid,jdbcType=VARCHAR}
+	   			 	</if>
+	   			 </foreach>
+	   		</trim> -->
+	   		<!-- <trim prefix="VISIBLE=CASE" suffix="end,">
+	   			 <foreach collection="list" item="tree" index="index">
+	   			 	<if test="@com.myself.util.StringUtils@isNotBlank(tree.visible)">
+	   			 		WHEN ID=#{tree.id,  jdbcType=INTEGER} then #{tree.visible,jdbcType=VARCHAR}
+	   			 	</if>
+	   			 </foreach>
+	   		</trim> -->
+	   		<!-- <trim prefix="ACCOUNT=CASE" suffix="end,">
+	   			 <foreach collection="list" item="tree" index="index">
+	   			 	<if test="@com.myself.util.StringUtils@isNotBlank(tree.account)">
+	   			 		WHEN ID=#{tree.id,  jdbcType=INTEGER} then #{tree.account,jdbcType=VARCHAR}
+	   			 	</if>
+	   			 </foreach>
+	   		</trim> -->
+	   		<trim prefix="DESCRIPTION=CASE" suffix="end,">
+	   			 <foreach collection="list" item="tree" index="index">
+	   			 	<if test="@com.myself.util.StringUtils@isNotBlank(tree.description)">
+	   			 		WHEN ID=#{tree.id, jdbcType=BIGINT} then #{tree.description,jdbcType=VARCHAR}
+	   			 	</if>
+	   			 </foreach>
+	   		</trim>
+	   		<trim prefix="UPDATE_TIME=CASE" suffix="end,">
+	   			 <foreach collection="list" item="tree" index="index">
+	   			 	<if test="@com.myself.util.StringUtils@isNotBlank(tree.updateTime)">
+	   			 		WHEN ID=#{tree.id, jdbcType=BIGINT} then #{tree.updateTime,jdbcType=DATE}
+	   			 	</if>
+	   			 </foreach>
+	   		</trim>
+		    <!-- <trim prefix="OPCODE=CASE" suffix="end,">
+			    <foreach collection="list" item="tree" index="index">
+				   <if test="@com.myself.util.StringUtils@isNotBlank(tree.opCode)">
+					   WHEN ID=#{tree.id,  jdbcType=INTEGER} then #{tree.opCode,jdbcType=VARCHAR}
+				   </if>
+			    </foreach>
+		    </trim> -->
+	   </trim>
+	   WHERE ID IN
+	   <foreach collection="list" item="tree" index="index" open="(" close=")" separator=",">
+           #{tree.id, jdbcType=BIGINT}
+       </foreach>
+	</update>
+	
+	<delete id="deletes" parameterType="java.util.List">
+		DELETE FROM T_ROLE_MENU WHERE ID IN
+		<foreach collection="list" index="index" item="tree" open="(" close=")" separator=",">
+			#{tree.id, jdbcType=BIGINT}
+		</foreach>
+	</delete>
+	
+</mapper>

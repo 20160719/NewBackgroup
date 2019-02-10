@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.myself.persistence.mapper.system.UserMapper">
+	
+	<sql id="user_select_1">
+		ID "id", ACCOUNT "account", PASSWORD "password", NAME "name", SEX "sex", BIRTHDAY "birthday", PHONE "phone", 
+		EMAIL "email", ADDRESS "address", ROLE_ID "roleId", CREATE_TIME "createTime", UPDATE_TIME "updateTime"
+	</sql>
+	
+	<sql id="query_where_1">
+		<trim prefix="WHERE" prefixOverrides="AND|OR">
+    		<if test="@com.myself.util.StringUtils@isNotBlank(entity.account)">
+		    	ACCOUNT = #{entity.account, jdbcType=VARCHAR}
+			</if>
+    		<if test="@com.myself.util.StringUtils@isNotBlank(entity.name)">
+		    	AND NAME = #{entity.name, jdbcType=VARCHAR}
+			</if>
+			<if test="@com.myself.util.StringUtils@isNotBlank(entity.email)">
+		    	AND EMAIL = #{entity.email, jdbcType=VARCHAR}
+			</if>
+    	</trim>
+	</sql>
+	
+	<sql id="limit_1">
+		<if test="@com.myself.util.StringUtils@isNotNull(entity.startIndex) and @com.myself.util.StringUtils@isNotNull(entity.limit)">
+    		LIMIT #{entity.startIndex, jdbcType=INTEGER}, #{entity.limit, jdbcType=INTEGER}
+    	</if>
+	</sql>
+	
+	<select id="queries" resultType="com.myself.persistence.entity.system.UserEntity" parameterType="com.myself.persistence.entity.system.UserEntity">
+		SELECT 
+		<include refid="user_select_1"/>
+    	FROM T_USER
+    	<include refid="query_where_1"/>
+    	<include refid="limit_1"/> 
+	</select> 
+	
+	<select id="queryForVerify" resultType="java.lang.Integer" parameterType="com.myself.persistence.entity.system.UserEntity">
+		SELECT COUNT(ID) FROM T_USER <include refid="query_where_1"/>
+	</select>
+	
+	<select id="queryByIds" resultType="com.myself.persistence.entity.system.UserEntity" parameterType="java.lang.Long">
+		SELECT 
+		<include refid="user_select_1"></include>
+		FROM T_USER 
+		WHERE ID IN
+	   <foreach collection="list" item="id" index="index" open="(" close=")" separator=",">
+           #{id, jdbcType=BIGINT}
+       </foreach>
+	</select>
+	
+	<!-- 批量插入 -->
+	<insert id="inserts" parameterType="java.util.List">
+		INSERT INTO T_USER(ACCOUNT, PASSWORD, NAME, SEX, BIRTHDAY, PHONE, CREATE_TIME, EMAIL, ADDRESS) VALUES
+			<foreach collection="list" item="user" index="index" separator=",">
+				(<!-- #{user.id, jdbcType=BIGINT}, -->
+				 #{user.account, jdbcType=VARCHAR},
+				 #{user.password, jdbcType=VARCHAR},
+				 #{user.name, jdbcType=VARCHAR},
+				 #{user.sex, jdbcType=VARCHAR},
+				 #{user.birthday, jdbcType=DATE},
+				 #{user.phone, jdbcType=VARCHAR},
+				 #{user.createTime, jdbcType=DATE},
+				<!--  #{user.updateTime, jdbcType=DATE}, -->
+				 #{user.email, jdbcType=VARCHAR},
+				 #{user.address, jdbcType=VARCHAR}<!-- ,
+				 #{user.roleId, jdbcType=BIGINT} -->)
+			</foreach>
+	</insert>
+	
+		<!-- 批量更新 -->
+	<update id="updates" parameterType="java.util.List">
+	   UPDATE T_USER
+	   <trim prefix="SET" suffixOverrides=",">
+	   		<trim prefix="ACCOUNT=CASE" suffix="end,">
+	   			 <foreach collection="list" item="user" index="index">
+	   			 	<if test="@com.myself.util.StringUtils@isNotBlank(user.account)">
+	   			 		WHEN ID=#{user.id, jdbcType=BIGINT} then #{user.account,jdbcType=VARCHAR}
+	   			 	</if>
+	   			 </foreach>
+	   		</trim>
+	   		<trim prefix="PASSWORD=CASE" suffix="end,">
+	   			 <foreach collection="list" item="user" index="index">
+	   			 	<if test="@com.myself.util.StringUtils@isNotBlank(user.password)">
+	   			 		WHEN ID=#{user.id, jdbcType=BIGINT} then #{user.password,jdbcType=VARCHAR}
+	   			 	</if>
+	   			 </foreach>
+	   		</trim>
+	   		<trim prefix="NAME=CASE" suffix="end,">
+	   			 <foreach collection="list" item="user" index="index">
+	   			 	<if test="@com.myself.util.StringUtils@isNotBlank(user.name)">
+	   			 		WHEN ID=#{user.id, jdbcType=BIGINT} then #{user.name,jdbcType=VARCHAR}
+	   			 	</if>
+	   			 </foreach>
+	   		</trim>
+		    <trim prefix="SEX=CASE" suffix="end,">
+			    <foreach collection="list" item="user" index="index">
+				    <if test="@com.myself.util.StringUtils@isNotBlank(user.sex)">
+					   WHEN ID=#{user.id, jdbcType=BIGINT} then #{user.sex,jdbcType=VARCHAR}
+				    </if>
+			    </foreach>
+		    </trim>
+	   		<trim prefix="BIRTHDAY=CASE" suffix="end,">
+	   			 <foreach collection="list" item="user" index="index">
+	   			 	<if test="@com.myself.util.StringUtils@isNotBlank(user.birthday)">
+	   			 		WHEN ID=#{user.id, jdbcType=BIGINT} then #{user.birthday,jdbcType=DATE}
+	   			 	</if>
+	   			 </foreach>
+	   		</trim>
+	   		<trim prefix="PHONE=CASE" suffix="end,">
+	   			 <foreach collection="list" item="user" index="index">
+	   			 	<if test="@com.myself.util.StringUtils@isNotBlank(user.phone)">
+	   			 		WHEN ID=#{user.id, jdbcType=BIGINT} then #{user.phone,jdbcType=VARCHAR}
+	   			 	</if>
+	   			 </foreach>
+	   		</trim>
+	   		<trim prefix="EMAIL=CASE" suffix="end,">
+	   			 <foreach collection="list" item="user" index="index">
+	   			 	<if test="@com.myself.util.StringUtils@isNotBlank(user.email)">
+	   			 		WHEN ID=#{user.id, jdbcType=BIGINT} then #{user.email,jdbcType=VARCHAR}
+	   			 	</if>
+	   			 </foreach>
+	   		</trim>
+	   		<trim prefix="ADDRESS=CASE" suffix="end,">
+	   			 <foreach collection="list" item="user" index="index">
+	   			 	<if test="@com.myself.util.StringUtils@isNotBlank(user.address)">
+	   			 		WHEN ID=#{user.id, jdbcType=BIGINT} then #{user.address,jdbcType=VARCHAR}
+	   			 	</if>
+	   			 </foreach>
+	   		</trim>
+	   		<trim prefix="ROLE_ID=CASE" suffix="end,">
+	   			 <foreach collection="list" item="user" index="index">
+	   			 	<if test="@com.myself.util.StringUtils@isNotBlank(user.roleId)">
+	   			 		WHEN ID=#{user.id, jdbcType=BIGINT} then #{user.roleId,jdbcType=BIGINT}
+	   			 	</if>
+	   			 </foreach>
+	   		</trim>
+	   		<trim prefix="UPDATE_TIME=CASE" suffix="end,">
+	   			 <foreach collection="list" item="user" index="index">
+	   			 	<if test="@com.myself.util.StringUtils@isNotBlank(user.updateTime)">
+	   			 		WHEN ID=#{user.id, jdbcType=BIGINT} then #{user.updateTime,jdbcType=DATE}
+	   			 	</if>
+	   			 </foreach>
+	   		</trim>
+	   </trim>
+	   WHERE ID IN
+	   <foreach collection="list" item="user" index="index" open="(" close=")" separator=",">
+           #{user.id, jdbcType=BIGINT}
+       </foreach>
+	</update>
+	
+	<delete id="deletes" parameterType="java.util.List">
+		DELETE FROM T_USER WHERE ID IN
+		<foreach collection="list" index="index" item="user" open="(" close=")" separator=",">
+			#{user.id, jdbcType=BIGINT}
+		</foreach>
+	</delete>
+	
+</mapper>

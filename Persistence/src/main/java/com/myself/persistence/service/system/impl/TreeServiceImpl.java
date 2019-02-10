@@ -30,16 +30,26 @@ public class TreeServiceImpl extends AbstractServiceImpl<TreeEntity, Long> imple
 	
 	@Resource(name = "treeMapper")
 	private TreeMapper treeMapper;
+	
+//	@Override
+//	public List<TreeEntity> queries(TreeEntity entity) {
+//		List<TreeEntity> list = super.queries(entity);
+//		return super.queries(entity);
+//	}
 
 	@Override
-	protected List<TreeEntity> queryByEntityIds(List<TreeEntity> list) throws Exception {
-		List<Long> ids = list.stream().map(t -> t.getId()).collect(Collectors.toList());
-		return getMapper().queryByIds(ids);
+	protected List<Long> getEntityIds(List<TreeEntity> list) {
+		return list.stream().map(t -> t.getId()).collect(Collectors.toList());
 	}
 
 	@Override
-	protected boolean compare(TreeEntity entity, TreeEntity oldEntity) {
-		return entity.toString().equals(oldEntity.toString());
+	protected boolean isEqual(TreeEntity entity, TreeEntity oldEntity) {
+		return !entity.fieldsIsChanged(oldEntity, false);
+	}
+	
+	@Override
+	protected void setFieldNull(TreeEntity entity, TreeEntity oldEntity) {
+		entity.fieldsIsChanged(oldEntity, true);
 	}
 
 	@Override

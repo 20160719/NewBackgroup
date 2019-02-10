@@ -8,8 +8,9 @@
 <%@include file="../../../../../../url.jsp"%>
 <%@include file="../../../../../../jquery.jsp"%>
 <%@include file="../../../../../../layui.jsp"%>
-<script type="text/javascript"
-	src="<%=basePath%>/resources/js/system/menu.js"></script>
+<%@include file="../../../../../../ztree.jsp"%>
+<script type="text/javascript" src="<%=basePath%>/resources/js/system/menuTree.js"></script>
+<script type="text/javascript" src="<%=basePath%>/resources/js/system/menu.js"></script>
 </head>
 <body>
 
@@ -29,10 +30,36 @@
 		</div>
 	</div>
 
-	<table id="menuTab" lay-filter="menuTab"></table>
+	<table id="menuTab" lay-filter="menuTab" lay-data="{id: 'menuTab'}"></table>
+	
+	<script type="text/html" id="useTypeTmp">
+    {{#  if(d.useType == 0){ }}
+    	空目录
+    {{#  } else if(d.useType == 1){ }}
+    	页面跳转
+    {{#  } else if(d.useType == 2){ }}
+		数据操作
+    {{#  } }}
+	</script>
+
+	<script type="text/html" id="opBar">
+  		<a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
+  		<a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+	</script>
 
 	<div id="operate" style="display: none; margin-top: 20px; margin-right: 40px;">
-		<form id="form" class="layui-form">
+		<form id="form" class="layui-form" lay-filter="menu">
+			<input type="hidden" id="id" name="id">
+			<input type="hidden" id="pId" name="pId">
+			<input type="hidden" id="type" name="type" value="0">
+			<input type="hidden" id="level" name="level">
+			<div id="p" class="layui-form-item">
+				<label class="layui-form-label">父菜单名称</label>
+				<div class="layui-input-block">
+					<input type="text" id="pName" name="pName"
+						placeholder="请选择父菜单" autocomplete="off" class="layui-input">
+				</div>
+			</div>
 			<div class="layui-form-item">
 				<label class="layui-form-label">菜单名称</label>
 				<div class="layui-input-block">
@@ -43,7 +70,7 @@
 			<div class="layui-form-item">
 				<label class="layui-form-label">菜单URL</label>
 				<div class="layui-input-block">
-					<input type="text" name="url" lay-verify="required"
+					<input type="text" name="value" lay-verify="required"
 						placeholder="请输入菜单URL" autocomplete="off" class="layui-input">
 				</div>
 			</div>
@@ -73,12 +100,14 @@
 			</div>
 			<div class="layui-form-item">
 				<div class="layui-input-block">
-					<button class="layui-btn" lay-submit="sub">保存</button>
+					<button class="layui-btn" lay-submit="" lay-filter="sub">保存</button>
 					<button type="reset" class="layui-btn layui-btn-primary">重置</button>
 				</div>
 			</div>
 		</form>
 	</div>
+
+	<div id="menuTree" style="display: none;" class="ztree">aaa</div>
 
 </body>
 </html>

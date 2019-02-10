@@ -7,44 +7,44 @@ import com.myself.persistence.entity.AbstractEntity;
  *
  */
 public class TreeEntity extends AbstractEntity<Long> {
-	
-	//类型（0 菜单 1 角色）
-	private int type;
-	
-	//父级ID
+
+	// 类型（0 菜单 1 角色）
+	private Integer type;
+
+	// 父级ID
 	private Long pId;
-	
-	//名称
+
+	// 名称
 	private String name;
-	
-	//值
+
+	// 值
 	private String value;
-	
-	//用途
-	private int useType;
-	
-	//层级
-	private int level;
-	
-	//序列
-	private int seq;
-	
-	//描述
+
+	// 用途
+	private Integer useType;
+
+	// 层级
+	private Integer level;
+
+	// 序列
+	private Integer seq;
+
+	// 描述
 	private String description;
 
-	public int getType() {
+	public Integer getType() {
 		return type;
 	}
 
-	public void setType(int type) {
+	public void setType(Integer type) {
 		this.type = type;
 	}
 
-	public Long getpId() {
+	public Long getPId() {
 		return pId;
 	}
 
-	public void setpId(Long pId) {
+	public void setPId(Long pId) {
 		this.pId = pId;
 	}
 
@@ -64,27 +64,27 @@ public class TreeEntity extends AbstractEntity<Long> {
 		this.value = value;
 	}
 
-	public int getUseType() {
+	public Integer getUseType() {
 		return useType;
 	}
 
-	public void setUseType(int useType) {
+	public void setUseType(Integer useType) {
 		this.useType = useType;
 	}
 
-	public int getLevel() {
+	public Integer getLevel() {
 		return level;
 	}
 
-	public void setLevel(int level) {
+	public void setLevel(Integer level) {
 		this.level = level;
 	}
 
-	public int getSeq() {
+	public Integer getSeq() {
 		return seq;
 	}
 
-	public void setSeq(int seq) {
+	public void setSeq(Integer seq) {
 		this.seq = seq;
 	}
 
@@ -97,9 +97,15 @@ public class TreeEntity extends AbstractEntity<Long> {
 	}
 
 	@Override
+	public boolean fieldsIsChanged(AbstractEntity<Long> oldEntity) {
+		TreeEntity oldTEty = (TreeEntity) oldEntity;
+		return super.fieldsIsChanged(oldTEty);
+	}
+
+	@Override
 	public String toString() {
-		return "TreeEntity [type=" + type + ", pId=" + pId + ", name=" + name + ", value=" + value + ", level=" + level
-				+ ", seq=" + seq + ", description=" + description + ", id=" + id + "]";
+		return "TreeEntity [type=" + type + ", pId=" + pId + ", name=" + name + ", value=" + value + ", useType="
+				+ useType + ", level=" + level + ", seq=" + seq + ", description=" + description + ", id=" + id + "]";
 	}
 
 }

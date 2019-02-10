@@ -1,5 +1,7 @@
 package com.myself.controller.system;
 
+import java.util.Date;
+
 import javax.annotation.Resource;
 
 import org.slf4j.Logger;
@@ -28,14 +30,24 @@ public class UserController extends AbstractSystemController<UserEntity, Long> {
 		return userService;
 	}
 
-	@Override
-	protected Long getId(UserEntity entity) {
-		return entity.getId();
-	}
+//	@Override
+//	protected Long getId(UserEntity entity) {
+//		return entity.getId();
+//	}
 
 	@Override
 	public Logger getLogger() {
 		return logger;
+	}
+
+	@Override
+	protected void setCreateTime(UserEntity entity) {
+		entity.setCreateTime(new Date());
+	}
+
+	@Override
+	protected void setUpdateTime(UserEntity entity) {
+		entity.setUpdateTime(new Date());
 	}
 
 	@Override
